@@ -1,0 +1,7 @@
+flask
+firebase-admin
+google-cloud-aiplatform
+python-dotenv
+flask-cors
+google-cloud-discoveryengine
+google-cloud-storage
