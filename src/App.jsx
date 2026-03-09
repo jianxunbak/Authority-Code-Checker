@@ -9,7 +9,9 @@ import { auth, signInWithGoogle, logout } from './services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import './index.css';
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = import.meta.env.MODE === 'development' 
+  ? "http://localhost:8080/api" 
+  : "/api";
 
 function App() {
   const [user, setUser] = useState(null);
