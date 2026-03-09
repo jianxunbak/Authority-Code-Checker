@@ -55,10 +55,20 @@ def require_auth(f):
         try:
             # Verify the ID token
             decoded_token = auth.verify_id_token(token)
+            user_email = decoded_token.get('email')
             
+            # 🔐 Email Whitelist Check (Optional but Recommended)
+            allowed_users_env = os.environ.get("ALLOWED_USERS", "").strip()
+            if allowed_users_env:
+                # Expecting comma-separated list: "a@gmail.com, b@gmail.com"
+                allowed_list = [email.strip() for email in allowed_users_env.split(",") if email.strip()]
+                if user_email not in allowed_list:
+                    print(f"🚫 [Auth] Access Denied: {user_email} is not in white-list.")
+                    return jsonify({"error": f"Access Forbidden: {user_email} is not on the whitelist."}), 403
+
             # Attach user info to request for downstream use
             request.user = decoded_token
-            print(f"✅ [Auth] User verified: {decoded_token.get('email')}")
+            print(f"✅ [Auth] User verified: {user_email}")
             
         except Exception as e:
             print(f"❌ [Auth] Verification failed: {e}")
