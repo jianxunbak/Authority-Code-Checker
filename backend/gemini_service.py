@@ -12,11 +12,33 @@ load_dotenv()
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT_ID") or os.environ.get("VITE_GOOGLE_CLOUD_PROJECT_ID") or "your-project-id"
 LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "asia-southeast1")
 
-# Explicitly load service account if it exists locally
+import tempfile
+import json
+
+# Explicitly load service account if it exists locally (Development)
+# Or from Environment Variable (Production/Vercel)
 SERVICE_ACCOUNT_FILE = os.path.join(os.path.dirname(__file__), "service-account.json")
+env_creds = os.environ.get("GOOGLE_CREDENTIALS_JSON")
+
 if os.path.exists(SERVICE_ACCOUNT_FILE):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = SERVICE_ACCOUNT_FILE
     print(f"🔑 [Gemini] Loaded credentials from {SERVICE_ACCOUNT_FILE}")
+elif env_creds:
+    # Use existing or create a temporary file (common with auth_middleware)
+    # The Vertex AI SDK requires a physical file path in GOOGLE_APPLICATION_CREDENTIALS
+    if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+        try:
+            temp_cred = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
+            temp_cred.write(env_creds.encode('utf-8'))
+            temp_cred.close()
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = temp_cred.name
+            print(f"🔑 [Gemini] Loaded credentials from Environment Variable")
+        except Exception as e:
+            print(f"⚠️ [Gemini] Failed to create temp credentials file: {e}")
+    else:
+        print(f"🔑 [Gemini] Using credentials previously set (e.g., from Auth Middleware)")
+else:
+    print(f"ℹ️ [Gemini] No local service-account.json or environment credentials found. Using ADC.")
 
 try:
     print(f"🔹 [Gemini] Initializing Vertex AI with Project: '{PROJECT_ID}', Location: '{LOCATION}'")
