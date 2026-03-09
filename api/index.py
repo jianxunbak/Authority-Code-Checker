@@ -1,9 +1,20 @@
+import os
+import sys
+
+# Ensure the 'api' directory is in the path for Vercel
+sys.path.append(os.path.dirname(__file__))
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from auth_middleware import require_auth
-import gemini_service
-import os
+try:
+    from auth_middleware import require_auth
+except ImportError:
+    from api.auth_middleware import require_auth
+
+try:
+    import gemini_service
+except ImportError:
+    from api import gemini_service
 
 app = Flask(__name__)
 # Enable CORS for the React frontend
