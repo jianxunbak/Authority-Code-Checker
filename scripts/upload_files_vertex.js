@@ -25,14 +25,14 @@ if (!PROJECT_ID || !BUCKET_NAME) {
 }
 
 // Check for service account
-const SERVICE_ACCOUNT_PATH = path.join(process.cwd(), 'backend/service-account.json');
+const SERVICE_ACCOUNT_PATH = path.join(process.cwd(), 'api/service-account.json');
 const storageOptions = { projectId: PROJECT_ID };
 
 if (fs.existsSync(SERVICE_ACCOUNT_PATH)) {
     console.log(`🔑 Using service account from: ${SERVICE_ACCOUNT_PATH}`);
     storageOptions.keyFilename = SERVICE_ACCOUNT_PATH;
 } else {
-    console.log("⚠️ No service account file found in backend/service-account.json, using default credentials.");
+    console.log("⚠️ No service account file found in api/service-account.json, using default credentials.");
 }
 
 // Initialize GCS
